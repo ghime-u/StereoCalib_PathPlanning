@@ -15,6 +15,9 @@ Obstacle detection using stereo camera for depth estimation and path planning us
 
 5) Run main.py( RRT path planning) to run path planning file to find optimal path
 
+%traffic sign detection:
+The pytorch model was implemented on a small dataset of 950 images with very few images in some labels, the accuracy capped at 64%, tweaking parameters even further resulted in overfitting for some labels
+The german traffic sign database was implemented using tensorflow keras. it gives around 93% accuracy
 
 %%%%%%
 Thank You
