@@ -12,7 +12,7 @@ import csv
 
 distance_camera = 28 # distance between stereo setup in cm
 
-
+# returns field of view angle using arc tan, focal length
 def get_viewx(csvfile, img):
     with open(csvfile, newline='') as csv_file:
         reader = csv.reader(csv_file, delimiter=',')
@@ -21,16 +21,16 @@ def get_viewx(csvfile, img):
     focaly = float(cm[1][1])
     w = img.shape[1]
     temp = w/(2*focalx)
-    angle_x = 2*57.89*np.arctan(temp)
+    angle_x = 2*57.89*np.arctan(temp)       # 57.89 is to convert from radian to degree
     return angle_x
 
 
 capL = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 capR = cv2.VideoCapture(6, cv2.CAP_DSHOW)
 
-
+# shape recognition
 def shapeRecognition(frame, mask):
-    contours = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    contours = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)    #contour detection
     contours = imutils.grab_contours(contours)
     center = None
     copy = frame.copy()
@@ -38,16 +38,16 @@ def shapeRecognition(frame, mask):
 
     for cnt in contours:
         center = []
-        area = cv2.contourArea(cnt)
+        area = cv2.contourArea(cnt)         # area of contour
         if area > 300:
             cv2.drawContours(copy, cnt, -1, (255, 0, 0), 3)
-            peri = cv2.arcLength(cnt, True)
-            approx = cv2.approxPolyDP(cnt, 0.02 * peri, True)
+            peri = cv2.arcLength(cnt, True)         #perimeter of contour
+            approx = cv2.approxPolyDP(cnt, 0.02 * peri, True)       # approximate poly dp 
             x, y, w, h = cv2.boundingRect(approx)
 
             cv2.rectangle(copy, (x, y), (x + w, y + h), (0, 0, 0), 4)
             aspect_ratio = w / float(h)
-            objectcor = len(approx)
+            objectcor = len(approx)             # length of polydp is the number of edges of contour, 4 if rectangle
             if objectcor == 4:
                 print("rectangle")
                 center_cord = [x + (w/2), y + (h/2)]
@@ -56,7 +56,7 @@ def shapeRecognition(frame, mask):
                 return [center_cord, pos_cord]
 
 
-
+# not used, just to test
 def get_contours(img, imgcopy):
     contour, heirarchy = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     for cnt in contour:
@@ -65,6 +65,7 @@ def get_contours(img, imgcopy):
     cv2.drawContours(imgcopy, contour, -1, (255, 255, 255), 3)
 
 
+    # color filter for red color with morphological operations
 def color_filter(image, camera):
     lower_blue = np.array([0, 70, 50])
     upper_blue =  np.array([10, 255, 255])
@@ -80,7 +81,7 @@ def color_filter(image, camera):
     mask = cv2.dilate(mask, None, iterations=2)
     return mask
 
-
+# main function
 def main():
     count = -1;
     obspos = []
@@ -89,8 +90,8 @@ def main():
         count +=1
         suc1, imgL = capL.read()
         suc2, imgR = capR.read()
-        cameramatrixR = 'cameraMatrixR.csv'
-        angle_Rx = get_viewx(cameramatrixR, imgR)
+        cameramatrixR = 'cameraMatrixR.csv'     
+        angle_Rx = get_viewx(cameramatrixR, imgR)       #angle of view using cameramatrix andd getview function
 
         if suc1 == False or suc2 == False:
             break
@@ -101,7 +102,7 @@ def main():
             frameL = cv2.bitwise_and(imgL, imgL, mask=maskL)
             frameR = cv2.bitwise_and(imgR, imgR, mask=maskR)
 
-            rect_l = shapeRecognition(imgL, maskL)
+            rect_l = shapeRecognition(imgL, maskL)  
             rect_r = shapeRecognition(imgR, maskR)
 
             if np.all(rect_l) == None or np.all(rect_r) == None:
@@ -109,9 +110,9 @@ def main():
                 cv2.putText(imgR, 'Tracking_Lost', (75, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
 
             else:
-                depth1 = tri.find_depth(rect_r[0], rect_l[0], imgR, imgL, distance_camera, angle_Rx)
+                depth1 = tri.find_depth(rect_r[0], rect_l[0], imgR, imgL, distance_camera, angle_Rx)        #triangulation.py depth function
                 depth.append(depth1)
-                obspos.append([depth1, rect_l[1][0], rect_l[1][1], rect_l[1][1]])
+                obspos.append([depth1, rect_l[1][0], rect_l[1][1], rect_l[1][1]])                           # array to store obstacle position
 
                 cv2.putText(imgR, "TRACKING", (75, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (124, 252, 0), 2)
 
