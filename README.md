@@ -6,7 +6,7 @@ Obstacle detection using stereo camera for depth estimation and path planning us
 %%%%% Windows 10, python 3.9, pycharm
 
 %%%%% instructions
-1) Create a stereo Camera Setup
+1) Create a stereo Camera Setup, install pygame, numpy, opencv, imutils
 2) Run the saveimages.py and press 's' to save images for calibration for both left and right matrix
 
 3) Run stereo calibration.py (check if your images are saved in the same resource folder if not declare path)
