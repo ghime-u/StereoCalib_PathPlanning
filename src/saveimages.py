@@ -14,6 +14,7 @@ while cap.isOpened():
 
     if key == 27:
         break
+       # saves image using imwrite, basic stuff
     elif key == ord('s'):
         cv2.imwrite(l_camera + str(num) + '.png', img)
         cv2.imwrite(r_camera + str(num) + '.png', img2)
